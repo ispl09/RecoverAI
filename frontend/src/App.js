@@ -1,0 +1,58 @@
+import { useState } from "react";
+import "./App.css";
+
+import Login from "./pages/Login";
+import Dashboard from "./components/Dashboard";
+import Sidebar from "./components/Sidebar";
+import RecoveryCases from "./components/RecoveryCases";
+
+function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem("token")
+  );
+
+  const [currentPage, setCurrentPage] = useState("dashboard");
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    setCurrentPage("dashboard");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+  };
+
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
+
+  return (
+    <div className="app-layout">
+
+      <Sidebar
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+      />
+
+      <main className="main-content">
+
+        {currentPage === "dashboard" && <Dashboard />}
+
+        {currentPage === "recovery" && <RecoveryCases />}
+
+        <button
+          onClick={handleLogout}
+          className="btn btn-danger logout-button"
+        >
+          <i className="bi bi-box-arrow-right"></i>{" "}
+          Logout
+        </button>
+
+      </main>
+
+    </div>
+  );
+}
+
+export default App;

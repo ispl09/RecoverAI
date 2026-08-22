@@ -1,0 +1,183 @@
+.recovery-page {
+  padding: 30px;
+  min-height: 100vh;
+  background: #f5f7fb;
+}
+
+.recovery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+
+.recovery-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.recovery-header p {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.case-count {
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: #e8f1ff;
+  color: #0d6efd;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.recovery-table-card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.recovery-table {
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+.recovery-table thead {
+  background: #f8fafc;
+}
+
+.recovery-table th {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.recovery-table td {
+  padding: 18px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #374151;
+  font-size: 14px;
+}
+
+.recovery-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.recovery-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.payment-failed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.recovery-pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.recovery-analyzing {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+.recovery-recovering {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.recovery-recovered {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.recovery-failed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.empty-recovery {
+  padding: 70px 20px;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.empty-recovery i {
+  font-size: 48px;
+  color: #16a34a;
+}
+
+.empty-recovery h3 {
+  margin-top: 15px;
+  color: #111827;
+}
+
+.empty-recovery p {
+  color: #6b7280;
+}
+
+.recovery-loading,
+.recovery-error {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
+.recovery-loading .spinner-border {
+  margin-bottom: 15px;
+}
+
+.recovery-error i {
+  font-size: 40px;
+  color: #dc2626;
+  margin-bottom: 10px;
+}
+
+.recovery-error h3 {
+  color: #374151;
+}
+
+@media (max-width: 768px) {
+  .recovery-page {
+    padding: 20px;
+  }
+
+  .recovery-header {
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .recovery-header h1 {
+    font-size: 24px;
+  }
+}
+
+.recovery-case-row {
+  cursor: pointer;
+}
+
+.recovery-case-row:hover {
+  background: #f1f5f9 !important;
+}
