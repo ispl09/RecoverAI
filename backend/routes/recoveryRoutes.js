@@ -6,6 +6,7 @@ const RecoveryAction = require("../models/RecoveryAction");
 const AuditLog = require("../models/AuditLog");
 
 const { analyzeRecoveryCase } = require("../services/recoveryEngine");
+const { validateRecoveryAction } = require("../services/recoveryPolicy");
 
 const router = express.Router();
 
@@ -138,6 +139,18 @@ router.post("/:recoveryCaseId/action", authMiddleware, async (req, res) => {
 
     const analysis = analyzeRecoveryCase(payment);
 
+    const policy = validateRecoveryAction(
+      analysis.recommendedAction,
+      recoveryCase
+    );
+
+    if (!policy.allowed) {
+      return res.status(403).json({
+        message: "Recovery action blocked by policy",
+        reason: policy.reason,
+      });
+    }
+
     const existingAction = await RecoveryAction.findOne({
       recoveryCaseId: recoveryCase._id,
       status: { $in: ["pending", "executed", "successful"] },
@@ -200,11 +213,22 @@ router.post("/:recoveryCaseId/execute", authMiddleware, async (req, res) => {
       });
     }
 
-    const recoveryAction = await RecoveryAction.findOne({
-      recoveryCaseId: recoveryCase._id,
-      status: "pending",
-    });
+    const existingAction = await RecoveryAction.findOne({
+    recoveryCaseId: recoveryCase._id,
+    status: { $in: ["executed", "successful"] },
+  });
 
+  if (existingAction) {
+    return res.status(409).json({
+      message: "Recovery action has already been executed for this case",
+      recoveryAction: existingAction,
+    });
+  }
+
+  const recoveryAction = await RecoveryAction.findOne({
+    recoveryCaseId: recoveryCase._id,
+    status: "pending",
+  });
     if (!recoveryAction) {
       return res.status(404).json({
         message: "No pending recovery action found",

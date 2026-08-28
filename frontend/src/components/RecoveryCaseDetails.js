@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import RecoveryTimeline from "./RecoveryTimeline";
+import RecoveryActions from "./RecoveryActions";
 import { getRecoveryCaseDetails } from "../services/recoveryCaseService";
 import "../css/RecoveryCaseDetails.css";
 
@@ -180,75 +182,78 @@ function RecoveryCaseDetails({ caseId, onBack }) {
           </div>
         </div>
 
-        {/* Recovery Actions */}
+        {/* AI Decision */}
         <div className="col-12">
-
-          <div className="card details-card">
-
+          <div className="card details-card ai-decision-card">
             <div className="card-body">
 
               <div className="details-card-title">
-                <i className="bi bi-lightning-charge"></i>
-                <h5>Recovery Actions</h5>
+                <i className="bi bi-robot"></i>
+                <h5>RecoverAI Decision</h5>
               </div>
 
-              {recoveryActions.length === 0 ? (
-                <div className="no-actions">
-                  <i className="bi bi-hourglass-split"></i>
-                  <p>No recovery actions recorded yet.</p>
+              <div className="ai-decision-content">
+
+                <div className="ai-decision-main">
+                  <span>Recommended Action</span>
+                  <strong>
+                    {recoveryCase.selectedAction
+                      ? recoveryCase.selectedAction
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (char) =>
+                            char.toUpperCase()
+                          )
+                      : "Not available"}
+                  </strong>
                 </div>
-              ) : (
-                <div className="action-list">
 
-                  {recoveryActions.map((action, index) => (
-                    <div
-                      className="action-item"
-                      key={action._id}
-                    >
-
-                      <div className="action-number">
-                        {index + 1}
-                      </div>
-
-                      <div className="action-content">
-
-                        <div className="action-top">
-                          <strong>
-                            {action.actionType ||
-                              action.type ||
-                              "Recovery Action"}
-                          </strong>
-
-                          <span className="status-badge">
-                            {action.status}
-                          </span>
-                        </div>
-
-                        <p>
-                          {action.description ||
-                            "Recovery action executed for this case."}
-                        </p>
-
-                        <small>
-                          {action.createdAt
-                            ? new Date(
-                                action.createdAt
-                              ).toLocaleString("en-IN")
-                            : ""}
-                        </small>
-
-                      </div>
-
-                    </div>
-                  ))}
-
+                <div className="ai-confidence">
+                  <span>Confidence</span>
+                  <strong>
+                    {recoveryCase.recoveryResult
+                      ?.match(/Confidence:\s*(\d+%)/)?.[1] || "N/A"}
+                  </strong>
                 </div>
-              )}
+
+                <div className="ai-category">
+                  <span>Failure Category</span>
+                  <strong>
+                    {recoveryCase.failureCategory
+                      ? recoveryCase.failureCategory
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (char) =>
+                            char.toUpperCase()
+                          )
+                      : "Unknown"}
+                  </strong>
+                </div>
+
+              </div>
+
+              <div className="ai-reason">
+                <span>Why this action?</span>
+                <p>
+                  {recoveryCase.recoveryResult
+                    ?.replace(/Confidence:\s*\d+%/, "")
+                    .trim() ||
+                    "No AI reasoning available."}
+                </p>
+              </div>
 
             </div>
           </div>
-
         </div>
+
+        {/* Recovery Timeline */}
+        <RecoveryTimeline
+          recoveryCase={recoveryCase}
+          recoveryActions={recoveryActions}
+        />
+
+        {/* Recovery Actions */}
+        <RecoveryActions
+          recoveryActions={recoveryActions}
+        />
 
       </div>
     </div>
