@@ -50,10 +50,15 @@ function Sidebar({ currentPage, setCurrentPage }) {
                     <span>AI Insights</span>
                 </a>
 
-                <a href="#audit" className="sidebar-link">
+                <button
+                    className={`sidebar-link ${
+                        currentPage === "audit" ? "active" : ""
+                    }`}
+                    onClick={() => setCurrentPage("audit")}
+                >
                     <i className="bi bi-journal-text"></i>
                     <span>Audit Logs</span>
-                </a>
+                </button>
 
                 <div className="sidebar-section-title">
                     SYSTEM

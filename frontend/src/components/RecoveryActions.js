@@ -1,6 +1,9 @@
 import "../css/RecoveryActions.css";
 
-function RecoveryActions({ recoveryActions }) {
+function RecoveryActions({ recoveryActions, 
+  onExecute, 
+  onOutcome,
+  actionLoading }) {
   if (!recoveryActions || recoveryActions.length === 0) {
     return (
       <div className="col-12">
@@ -65,6 +68,52 @@ function RecoveryActions({ recoveryActions }) {
                       <strong>Result:</strong>{" "}
                       {action.result}
                     </p>
+                  )}
+
+                  {action.status === "pending" && (
+                    <button
+                      className="btn btn-primary mt-2"
+                      onClick={() => onExecute(action._id)}
+                      disabled={actionLoading}
+                    >
+                      {actionLoading ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2"></span>
+                          Executing...
+                        </>
+                      ) : (
+                        <>
+                          <i className="bi bi-play-circle me-2"></i>
+                          Execute Recovery Action
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  {action.status === "executed" && (
+                    <div className="mt-3">
+                      <p className="mb-2">
+                        Was the recovery successful?
+                      </p>
+
+                      <button
+                        className="btn btn-success me-2"
+                        onClick={() => onOutcome("successful")}
+                        disabled={actionLoading}
+                      >
+                        <i className="bi bi-check-circle me-2"></i>
+                        Mark Successful
+                      </button>
+
+                      <button
+                        className="btn btn-outline-danger"
+                        onClick={() => onOutcome("failed")}
+                        disabled={actionLoading}
+                      >
+                        <i className="bi bi-x-circle me-2"></i>
+                        Mark Failed
+                      </button>
+                    </div>
                   )}
 
                   <small>

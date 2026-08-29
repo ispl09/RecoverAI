@@ -10,6 +10,7 @@ const recoveryRoutes = require("./routes/recoveryRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const cors = require("cors");
 const recoveryCaseRoutes = require("./routes/recoveryCaseRoutes");
+const auditLogRoutes = require("./routes/auditLogRoutes");
 
 const app = express();
 app.use(
@@ -26,6 +27,7 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/recovery", recoveryRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/recovery-cases", recoveryCaseRoutes);
+app.use("/api/audit-logs", auditLogRoutes);
 
 const PORT = 5000;
 

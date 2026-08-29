@@ -33,3 +33,93 @@ export const getRecoveryCaseDetails = async (token, caseId) => {
 
   return await response.json();
 };
+
+export const analyzeRecoveryCase = async (token, caseId) => {
+  const response = await fetch(
+    `${API_URL}/recovery-cases/${caseId}/analyze`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to analyze recovery case");
+  }
+
+  return await response.json();
+};
+
+export const createRecoveryAction = async (token, caseId) => {
+  const response = await fetch(
+    `${API_URL}/recovery/${caseId}/action`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+
+    throw new Error(
+      errorData.message || "Failed to create recovery action"
+    );
+  }
+
+  return await response.json();
+};
+
+export const executeRecoveryAction = async (token, caseId) => {
+  const response = await fetch(
+    `${API_URL}/recovery/${caseId}/execute`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+
+    throw new Error(
+      errorData.message || "Failed to execute recovery action"
+    );
+  }
+
+  return await response.json();
+};
+
+export const getAuditLogs = async (token) => {
+  const response = await fetch(
+    `${API_URL}/audit-logs`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+
+    throw new Error(
+      errorData.message || "Failed to fetch audit logs"
+    );
+  }
+
+  const data = await response.json();
+
+  return data.auditLogs;
+};

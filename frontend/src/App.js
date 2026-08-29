@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Dashboard from "./components/Dashboard";
 import Sidebar from "./components/Sidebar";
 import RecoveryCases from "./components/RecoveryCases";
+import AuditLogs from "./components/AuditLogs";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -40,6 +41,8 @@ function App() {
         {currentPage === "dashboard" && <Dashboard />}
 
         {currentPage === "recovery" && <RecoveryCases />}
+
+        {currentPage === "audit" && <AuditLogs />}
 
         <button
           onClick={handleLogout}

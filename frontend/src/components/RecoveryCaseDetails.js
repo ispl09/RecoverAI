@@ -1,13 +1,21 @@
 import { useEffect, useState } from "react";
 import RecoveryTimeline from "./RecoveryTimeline";
 import RecoveryActions from "./RecoveryActions";
-import { getRecoveryCaseDetails } from "../services/recoveryCaseService";
+import {
+  getRecoveryCaseDetails,
+  createRecoveryAction,
+  executeRecoveryAction,
+} from "../services/recoveryCaseService";
 import "../css/RecoveryCaseDetails.css";
 
 function RecoveryCaseDetails({ caseId, onBack }) {
   const [caseData, setCaseData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionMessage, setActionMessage] = useState("");
+  const [actionError, setActionError] = useState("");
 
   useEffect(() => {
     const loadCaseDetails = async () => {
@@ -33,6 +41,124 @@ function RecoveryCaseDetails({ caseId, onBack }) {
 
     loadCaseDetails();
   }, [caseId]);
+
+  const handleCreateAction = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setActionError("Authentication required");
+        return;
+      }
+
+      setActionLoading(true);
+      setActionMessage("");
+      setActionError("");
+
+      const data = await createRecoveryAction(token, caseId);
+
+      setActionMessage(
+        data.message || "Recovery action created successfully"
+      );
+
+      // Reload case details so the new action appears immediately
+      const updatedCaseData = await getRecoveryCaseDetails(token, caseId);
+      setCaseData(updatedCaseData);
+    } catch (error) {
+      console.error("Create recovery action error:", error);
+      setActionError(error.message || "Failed to create recovery action");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleExecuteAction = async (actionId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setActionError("Authentication required");
+        return;
+      }
+
+      setActionLoading(true);
+      setActionMessage("");
+      setActionError("");
+
+      const data = await executeRecoveryAction(token, caseId);
+
+      setActionMessage(
+        data.message || "Recovery action executed successfully"
+      );
+
+      // Reload case details so the updated action appears
+      const updatedCaseData = await getRecoveryCaseDetails(token, caseId);
+      setCaseData(updatedCaseData);
+    } catch (error) {
+      console.error("Execute recovery action error:", error);
+      setActionError(
+        error.message || "Failed to execute recovery action"
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleOutcome = async (outcome) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setActionError("Authentication required");
+        return;
+      }
+
+      setActionLoading(true);
+      setActionMessage("");
+      setActionError("");
+
+      const response = await fetch(
+        `http://localhost:5000/api/recovery/${caseId}/outcome`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            outcome,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Failed to update recovery outcome"
+        );
+      }
+
+      setActionMessage(
+        data.message || "Recovery outcome updated successfully"
+      );
+
+      const updatedCaseData = await getRecoveryCaseDetails(
+        token,
+        caseId
+      );
+
+      setCaseData(updatedCaseData);
+    } catch (error) {
+      console.error("Recovery outcome error:", error);
+
+      setActionError(
+        error.message || "Failed to update recovery outcome"
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -240,6 +366,40 @@ function RecoveryCaseDetails({ caseId, onBack }) {
                 </p>
               </div>
 
+              <div className="ai-action-controls">
+
+                <button
+                  className="btn btn-primary"
+                  onClick={handleCreateAction}
+                  disabled={actionLoading || recoveryActions.length > 0}
+                >
+                  {actionLoading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Creating Action...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-shield-check me-2"></i>
+                      Create Recovery Action
+                    </>
+                  )}
+                </button>
+
+                {actionMessage && (
+                  <div className="alert alert-success mt-3">
+                    {actionMessage}
+                  </div>
+                )}
+
+                {actionError && (
+                  <div className="alert alert-danger mt-3">
+                    {actionError}
+                  </div>
+                )}
+
+              </div>
+
             </div>
           </div>
         </div>
@@ -253,6 +413,9 @@ function RecoveryCaseDetails({ caseId, onBack }) {
         {/* Recovery Actions */}
         <RecoveryActions
           recoveryActions={recoveryActions}
+          onExecute={handleExecuteAction}
+          onOutcome={handleOutcome}
+          actionLoading={actionLoading}
         />
 
       </div>
