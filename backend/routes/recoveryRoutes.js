@@ -342,6 +342,14 @@ router.post("/:recoveryCaseId/outcome", authMiddleware, async (req, res) => {
     recoveryCase.status =
       outcome === "successful" ? "recovered" : "failed";
 
+    if (outcome === "successful") {
+      const payment = await Payment.findById(recoveryCase.paymentId);
+
+      recoveryCase.recoveredAmount = payment ? payment.amount : 0;
+    } else {
+      recoveryCase.recoveredAmount = 0;
+    }
+
     await recoveryCase.save();
 
     await AuditLog.create({

@@ -1,0 +1,139 @@
+.ai-insights-page {
+    padding: 32px;
+}
+
+.ai-insights-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.ai-insights-page-header h1 {
+    margin: 0;
+    font-weight: 700;
+}
+
+.ai-insights-page-header p {
+    margin: 6px 0 0;
+    color: #6c757d;
+}
+
+.insight-summary-card {
+    border: none;
+    border-radius: 14px;
+}
+
+.insight-summary-card .card-body {
+    padding: 22px;
+}
+
+.insight-summary-card span {
+    display: block;
+    color: #6c757d;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.insight-summary-card strong {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.ai-insights-section-header {
+    margin-bottom: 22px;
+}
+
+.ai-insights-section-header h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.ai-insights-section-header p {
+    margin: 6px 0 0;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.ai-insight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.ai-insight-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    background: #f8f9fa;
+}
+
+.ai-insight-item > i {
+    font-size: 22px;
+    margin-top: 2px;
+}
+
+.ai-insight-item strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.ai-insight-item span {
+    display: block;
+    color: #6c757d;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.no-ai-insights {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.no-ai-insights i {
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+.no-ai-insights h5 {
+    margin-bottom: 8px;
+}
+
+.no-ai-insights p {
+    color: #6c757d;
+}
+
+.ai-insights-loading {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.ai-insights-error {
+    padding: 40px;
+    text-align: center;
+}
+
+.ai-insights-error i {
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+    .ai-insights-page {
+        padding: 20px;
+    }
+
+    .ai-insights-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}

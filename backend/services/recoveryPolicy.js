@@ -25,13 +25,6 @@ const validateRecoveryAction = (action, recoveryCase) => {
     };
   }
 
-  // Policy 3: Failed cases cannot be processed again
-  if (recoveryCase.status === "failed") {
-    return {
-      allowed: false,
-      reason: "This recovery case has already failed.",
-    };
-  }
 
   // Policy 4: Unknown failures require manual review
   if (failureCategory === "unknown") {

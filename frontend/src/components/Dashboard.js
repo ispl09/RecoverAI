@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getDashboardData } from "../services/dashboardService";
+import { getAIInsights } from "../services/aiInsightService";
 import "../css/Dashboard.css";
 
 function Dashboard() {
@@ -7,35 +8,70 @@ function Dashboard() {
         totalPayments: 0,
         totalFailedPayments: 0,
         revenueAtRisk: 0,
+        totalRecoveredRevenue: 0,
         activeRecoveryCases: 0,
+        recoveredCases: 0,
         recoveryRate: "0%",
     });
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [aiInsights, setAIInsights] = useState([]);
+
+    // useEffect(() => {
+    //     const loadDashboard = async () => {
+    //         try {
+    //             const token = localStorage.getItem("token");
+
+    //             if (!token) {
+    //                 setError("Authentication required");
+    //                 setLoading(false);
+    //                 return;
+    //             }
+
+    //             const data = await getDashboardData(token);
+
+    //             setDashboard(data);
+    //         } catch (error) {
+    //             console.error("Dashboard loading error:", error);
+    //             setError("Failed to load dashboard data");
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     loadDashboard();
+    // }, []);
+
+    const loadDashboard = async () => {
+        try {
+            setLoading(true);
+
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                setError("Authentication required");
+                return;
+            }
+
+            const data = await getDashboardData(token);
+
+            setDashboard(data);
+
+            const aiData = await getAIInsights(token);
+
+            setAIInsights(aiData.insights || []);
+
+            setError("");
+        } catch (error) {
+            console.error("Dashboard loading error:", error);
+            setError("Failed to load dashboard data");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const loadDashboard = async () => {
-            try {
-                const token = localStorage.getItem("token");
-
-                if (!token) {
-                    setError("Authentication required");
-                    setLoading(false);
-                    return;
-                }
-
-                const data = await getDashboardData(token);
-
-                setDashboard(data);
-            } catch (error) {
-                console.error("Dashboard loading error:", error);
-                setError("Failed to load dashboard data");
-            } finally {
-                setLoading(false);
-            }
-        };
-
         loadDashboard();
     }, []);
 
@@ -68,14 +104,36 @@ function Dashboard() {
                         <p>AI-Powered Revenue Recovery</p>
                     </div>
 
-                    <button className="btn btn-primary">
+                    <button
+                        className="btn btn-primary"
+                        onClick={loadDashboard}
+                        disabled={loading}
+                    >
                         <i className="bi bi-arrow-clockwise"></i>{" "}
                         Refresh
                     </button>
                 </div>
 
                 <div className="row g-4">
+{/* 
+                    <div className="col-12 col-md-6 col-xl-3">
+                        <div className="card metric-card">
+                            <div className="card-body">
+                                <div className="metric-icon">
+                                    <i className="bi bi-currency-rupee"></i>
+                                </div>
 
+                                <h6>Revenue at Risk</h6>
+                                <h2>
+                                    ₹{dashboard.revenueAtRisk.toLocaleString("en-IN")}
+                                </h2>
+
+                                <span>Failed payment value</span>
+                            </div>
+                        </div>
+                    </div> */}
+
+                    {/* Revenue at Risk */}
                     <div className="col-12 col-md-6 col-xl-3">
                         <div className="card metric-card">
                             <div className="card-body">
@@ -92,6 +150,28 @@ function Dashboard() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Revenue Recovered */}
+                    <div className="col-12 col-md-6 col-xl-3">
+                        <div className="card metric-card">
+                            <div className="card-body">
+                                <div className="metric-icon">
+                                    <i className="bi bi-cash-stack"></i>
+                                </div>
+
+                                <h6>Revenue Recovered</h6>
+
+                                <h2>
+                                    ₹{dashboard.totalRecoveredRevenue.toLocaleString("en-IN")}
+                                </h2>
+
+                                <span>Money recovered by RecoverAI</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Failed Payments */}
+                    <div className="col-12 col-md-6 col-xl-3"></div>
 
                     <div className="col-12 col-md-6 col-xl-3">
                         <div className="card metric-card">
@@ -190,23 +270,83 @@ function Dashboard() {
                     <div className="col-12 col-lg-8">
                         <div className="card dashboard-card">
                             <div className="card-body">
-                                <h5>Recovery Overview</h5>
 
-                                <p className="text-muted">
-                                    Your recovery performance will appear here.
-                                </p>
+                                <div className="overview-header">
+                                    <div>
+                                        <h5>Recovery Overview</h5>
+                                        <p>Current revenue recovery performance</p>
+                                    </div>
+                                </div>
+
+                                <div className="recovery-overview">
+
+                                    <div className="overview-item">
+                                        <span>Failed Payments</span>
+                                        <strong>{dashboard.totalFailedPayments}</strong>
+                                    </div>
+
+                                    <div className="overview-item">
+                                        <span>Recovery Cases</span>
+                                        <strong>
+                                            {dashboard.activeRecoveryCases +
+                                                dashboard.recoveredCases}
+                                        </strong>
+                                    </div>
+
+                                    <div className="overview-item">
+                                        <span>Recovered Cases</span>
+                                        <strong>{dashboard.recoveredCases}</strong>
+                                    </div>
+
+                                    <div className="overview-item">
+                                        <span>Recovery Rate</span>
+                                        <strong>{dashboard.recoveryRate}</strong>
+                                    </div>
+
+                                </div>
+
                             </div>
                         </div>
                     </div>
 
                     <div className="col-12 col-lg-4">
-                        <div className="card dashboard-card">
+                        <div className="card dashboard-card ai-insights-card">
                             <div className="card-body">
-                                <h5>AI Insights</h5>
 
-                                <p className="text-muted">
-                                    RecoverAI recommendations will appear here.
-                                </p>
+                                <div className="ai-insights-header">
+                                    <div>
+                                        <h5>
+                                            <i className="bi bi-stars me-2"></i>
+                                            AI Insights
+                                        </h5>
+                                        <p>RecoverAI analysis</p>
+                                    </div>
+                                </div>
+
+                                <div className="ai-insight-list">
+
+                                    {aiInsights.length === 0 ? (
+                                        <p className="text-muted">
+                                            No AI insights available yet.
+                                        </p>
+                                    ) : (
+                                        aiInsights.map((insight, index) => (
+                                            <div
+                                                className={`ai-insight-item ${insight.type}`}
+                                                key={index}
+                                            >
+                                                <i className={`bi ${insight.icon}`}></i>
+
+                                                <div>
+                                                    <strong>{insight.title}</strong>
+                                                    <span>{insight.message}</span>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+
+                                </div>
+
                             </div>
                         </div>
                     </div>

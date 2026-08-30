@@ -45,10 +45,13 @@ function Sidebar({ currentPage, setCurrentPage }) {
                     INTELLIGENCE
                 </div>
 
-                <a href="#ai-insights" className="sidebar-link">
+                <button
+                    className={`sidebar-link ${currentPage === "ai-insights" ? "active" : ""}`}
+                    onClick={() => setCurrentPage("ai-insights")}
+                >
                     <i className="bi bi-stars"></i>
                     <span>AI Insights</span>
-                </a>
+                </button>
 
                 <button
                     className={`sidebar-link ${

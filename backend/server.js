@@ -8,6 +8,7 @@ const merchantRoutes = require("./routes/merchantRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const recoveryRoutes = require("./routes/recoveryRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const aiInsightRoutes = require("./routes/aiInsightRoutes");
 const cors = require("cors");
 const recoveryCaseRoutes = require("./routes/recoveryCaseRoutes");
 const auditLogRoutes = require("./routes/auditLogRoutes");
@@ -26,6 +27,7 @@ app.use("/api/merchant", merchantRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/recovery", recoveryRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/ai-insights", aiInsightRoutes);
 app.use("/api/recovery-cases", recoveryCaseRoutes);
 app.use("/api/audit-logs", auditLogRoutes);
 

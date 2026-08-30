@@ -41,6 +41,12 @@ const recoveryCaseSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+
+    recoveredAmount: {
+      type: Number,
+      default: 0,
+    },
+    
   },
   {
     timestamps: true,

@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Dashboard from "./components/Dashboard";
 import Sidebar from "./components/Sidebar";
 import RecoveryCases from "./components/RecoveryCases";
+import AIInsights from "./components/AIInsights";
 import AuditLogs from "./components/AuditLogs";
 
 function App() {
@@ -41,6 +42,8 @@ function App() {
         {currentPage === "dashboard" && <Dashboard />}
 
         {currentPage === "recovery" && <RecoveryCases />}
+
+        {currentPage === "ai-insights" && <AIInsights />}
 
         {currentPage === "audit" && <AuditLogs />}
 

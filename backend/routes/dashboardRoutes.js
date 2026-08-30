@@ -20,12 +20,26 @@ router.get("/", authMiddleware, async (req, res) => {
 
     const totalFailedPayments = failedPayments.length;
 
-    const revenueAtRisk = failedPayments.reduce(
-      (total, payment) => total + payment.amount,
-      0
-    );
+    // const revenueAtRisk = failedPayments.reduce(
+    //   (total, payment) => total + payment.amount,
+    //   0
+    // );
 
     const recoveryCases = await RecoveryCase.find({ merchantId });
+
+    const recoveredPaymentIds = new Set(
+      recoveryCases
+        .filter((recoveryCase) => recoveryCase.status === "recovered")
+        .map((recoveryCase) => recoveryCase.paymentId.toString())
+    );
+
+    const revenueAtRisk = failedPayments
+      .filter((payment) => !recoveredPaymentIds.has(payment._id.toString()))
+      .reduce((total, payment) => total + payment.amount, 0);
+
+    const revenueRecovered = failedPayments
+      .filter((payment) => recoveredPaymentIds.has(payment._id.toString()))
+      .reduce((total, payment) => total + payment.amount, 0);
 
     const activeRecoveryCases = recoveryCases.filter(
       (recoveryCase) =>
@@ -33,6 +47,26 @@ router.get("/", authMiddleware, async (req, res) => {
         recoveryCase.status === "analyzing" ||
         recoveryCase.status === "recovering"
     ).length;
+
+    const recoveredCases = recoveryCases.filter(
+      (recoveryCase) => recoveryCase.status === "recovered"
+    ).length;
+
+    // const totalRecoveredRevenue = recoveredCases.reduce(
+    //   (total, recoveryCase) =>
+    //     total + (recoveryCase.recoveredAmount || 0),
+    //   0
+    // );
+
+    const recoveredCasesList = recoveryCases.filter(
+      (recoveryCase) => recoveryCase.status === "recovered"
+    );
+
+    const totalRecoveredRevenue = recoveredCasesList.reduce(
+      (total, recoveryCase) =>
+        total + (recoveryCase.recoveredAmount || 0),
+      0
+    );
 
     const recoveryActions = await RecoveryAction.find({
       recoveryCaseId: { $in: recoveryCases.map((item) => item._id) },
@@ -49,7 +83,7 @@ router.get("/", authMiddleware, async (req, res) => {
 
     const recoveryRate =
       totalFailedPayments > 0
-        ? ((successfulActions / totalFailedPayments) * 100).toFixed(2)
+        ? ((recoveredCases / totalFailedPayments) * 100).toFixed(2)
         : "0.00";
 
     res.json({
@@ -57,7 +91,10 @@ router.get("/", authMiddleware, async (req, res) => {
         totalPayments,
         totalFailedPayments,
         revenueAtRisk,
+        revenueRecovered,
         activeRecoveryCases,
+        recoveredCases,
+        totalRecoveredRevenue,
         recoveryActions: recoveryActions.length,
         executedActions,
         successfulActions,

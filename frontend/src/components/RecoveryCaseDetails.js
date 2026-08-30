@@ -6,12 +6,17 @@ import {
   createRecoveryAction,
   executeRecoveryAction,
 } from "../services/recoveryCaseService";
+import { analyzeRecoveryCase } from "../services/aiInsightService";
 import "../css/RecoveryCaseDetails.css";
 
 function RecoveryCaseDetails({ caseId, onBack }) {
   const [caseData, setCaseData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
 
   const [actionLoading, setActionLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState("");
@@ -31,6 +36,18 @@ function RecoveryCaseDetails({ caseId, onBack }) {
         const data = await getRecoveryCaseDetails(token, caseId);
 
         setCaseData(data);
+        setAiLoading(true);
+        setAiError("");
+
+        try {
+          const aiData = await analyzeRecoveryCase(token, caseId);
+          setAiAnalysis(aiData);
+        } catch (error) {
+          console.error("AI analysis error:", error);
+          setAiError(error.message || "Failed to generate AI analysis");
+        } finally {
+          setAiLoading(false);
+        }
       } catch (error) {
         console.error("Recovery case details error:", error);
         setError("Failed to load recovery case details");
@@ -320,48 +337,61 @@ function RecoveryCaseDetails({ caseId, onBack }) {
 
               <div className="ai-decision-content">
 
-                <div className="ai-decision-main">
-                  <span>Recommended Action</span>
-                  <strong>
-                    {recoveryCase.selectedAction
-                      ? recoveryCase.selectedAction
+                {aiLoading ? (
+                  <div className="ai-loading">
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    RecoverAI is analyzing this case...
+                  </div>
+                ) : aiError ? (
+                  <div className="alert alert-danger">
+                    <i className="bi bi-exclamation-triangle me-2"></i>
+                    {aiError}
+                  </div>
+                ) : aiAnalysis ? (
+                  <>
+                    <div className="ai-decision-main">
+                      <span>Recommended Action</span>
+
+                      <strong>
+                        {aiAnalysis.recommendation.recommendedAction
                           .replace(/_/g, " ")
                           .replace(/\b\w/g, (char) =>
                             char.toUpperCase()
-                          )
-                      : "Not available"}
-                  </strong>
-                </div>
+                          )}
+                      </strong>
+                    </div>
 
-                <div className="ai-confidence">
-                  <span>Confidence</span>
-                  <strong>
-                    {recoveryCase.recoveryResult
-                      ?.match(/Confidence:\s*(\d+%)/)?.[1] || "N/A"}
-                  </strong>
-                </div>
+                    <div className="ai-confidence">
+                      <span>Confidence</span>
 
-                <div className="ai-category">
-                  <span>Failure Category</span>
-                  <strong>
-                    {recoveryCase.failureCategory
-                      ? recoveryCase.failureCategory
-                          .replace(/_/g, " ")
+                      <strong>
+                        {aiAnalysis.recommendation.confidencePercentage}
+                      </strong>
+                    </div>
+
+                    <div className="ai-category">
+                      <span>Priority</span>
+
+                      <strong>
+                        {aiAnalysis.recommendation.priority
                           .replace(/\b\w/g, (char) =>
                             char.toUpperCase()
-                          )
-                      : "Unknown"}
-                  </strong>
-                </div>
+                          )}
+                      </strong>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-muted">
+                    No AI analysis available.
+                  </div>
+                )}
 
               </div>
 
               <div className="ai-reason">
                 <span>Why this action?</span>
                 <p>
-                  {recoveryCase.recoveryResult
-                    ?.replace(/Confidence:\s*\d+%/, "")
-                    .trim() ||
+                  {aiAnalysis?.recommendation?.reason ||
                     "No AI reasoning available."}
                 </p>
               </div>
@@ -371,7 +401,15 @@ function RecoveryCaseDetails({ caseId, onBack }) {
                 <button
                   className="btn btn-primary"
                   onClick={handleCreateAction}
-                  disabled={actionLoading || recoveryActions.length > 0}
+                  disabled={
+                    actionLoading ||
+                    recoveryActions.some(
+                      (action) =>
+                        action.status === "pending" ||
+                        action.status === "executed" ||
+                        action.status === "successful"
+                    )
+                  }
                 >
                   {actionLoading ? (
                     <>
