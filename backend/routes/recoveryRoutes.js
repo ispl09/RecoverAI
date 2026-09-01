@@ -1,5 +1,6 @@
 const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
+
 const Payment = require("../models/Payment");
 const RecoveryCase = require("../models/RecoveryCase");
 const RecoveryAction = require("../models/RecoveryAction");
@@ -9,6 +10,12 @@ const { analyzeRecoveryCase } = require("../services/recoveryEngine");
 const { validateRecoveryAction } = require("../services/recoveryPolicy");
 
 const router = express.Router();
+
+
+// =====================================================
+// CREATE RECOVERY CASE
+// POST /api/recovery
+// =====================================================
 
 router.post("/", authMiddleware, async (req, res) => {
   try {
@@ -39,6 +46,7 @@ router.post("/", authMiddleware, async (req, res) => {
 
     const existingCase = await RecoveryCase.findOne({
       paymentId: payment._id,
+      merchantId: req.merchant.merchantId,
     });
 
     if (existingCase) {
@@ -48,18 +56,26 @@ router.post("/", authMiddleware, async (req, res) => {
       });
     }
 
+    // Analyze payment when creating the case
+    const analysis = analyzeRecoveryCase(payment);
+
     const recoveryCase = await RecoveryCase.create({
       merchantId: req.merchant.merchantId,
       paymentId: payment._id,
       status: "pending",
+      failureCategory: analysis.failureCategory,
     });
 
     res.status(201).json({
       message: "Recovery case created successfully",
       recoveryCase,
     });
+
   } catch (error) {
-    console.error("Recovery case creation error:", error.message);
+    console.error(
+      "Recovery case creation error:",
+      error.message
+    );
 
     res.status(500).json({
       message: "Failed to create recovery case",
@@ -67,326 +83,459 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/:recoveryCaseId/analyze", authMiddleware, async (req, res) => {
-  try {
-    const recoveryCase = await RecoveryCase.findOne({
-      _id: req.params.recoveryCaseId,
-      merchantId: req.merchant.merchantId,
-    });
 
-    if (!recoveryCase) {
-      return res.status(404).json({
-        message: "Recovery case not found",
+// =====================================================
+// CREATE RECOVERY ACTION
+// POST /api/recovery/:recoveryCaseId/action
+// =====================================================
+
+router.post(
+  "/:recoveryCaseId/action",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const merchantId = req.merchant.merchantId;
+      const recoveryCaseId = req.params.recoveryCaseId;
+
+      const recoveryCase = await RecoveryCase.findOne({
+        _id: recoveryCaseId,
+        merchantId,
       });
-    }
 
-    const payment = await Payment.findOne({
-      _id: recoveryCase.paymentId,
-      merchantId: req.merchant.merchantId,
-    });
-
-    if (!payment) {
-      return res.status(404).json({
-        message: "Payment not found",
-      });
-    }
-
-    const analysis = analyzeRecoveryCase(payment);
-
-    recoveryCase.status = "analyzing";
-    await recoveryCase.save();
-
-    res.json({
-      message: "Recovery case analyzed successfully",
-      recoveryCase: {
-        id: recoveryCase._id,
-        status: recoveryCase.status,
-      },
-      analysis,
-    });
-  } catch (error) {
-    console.error("Recovery analysis error:", error.message);
-
-    res.status(500).json({
-      message: "Failed to analyze recovery case",
-    });
-  }
-});
-
-router.post("/:recoveryCaseId/action", authMiddleware, async (req, res) => {
-  try {
-    const recoveryCase = await RecoveryCase.findOne({
-      _id: req.params.recoveryCaseId,
-      merchantId: req.merchant.merchantId,
-    });
-
-    if (!recoveryCase) {
-      return res.status(404).json({
-        message: "Recovery case not found",
-      });
-    }
-
-    const payment = await Payment.findOne({
-      _id: recoveryCase.paymentId,
-      merchantId: req.merchant.merchantId,
-    });
-
-    if (!payment) {
-      return res.status(404).json({
-        message: "Payment not found",
-      });
-    }
-
-    const analysis = analyzeRecoveryCase(payment);
-
-    const policy = validateRecoveryAction(
-      analysis.recommendedAction,
-      recoveryCase
-    );
-
-    if (!policy.allowed) {
-      return res.status(403).json({
-        message: "Recovery action blocked by policy",
-        reason: policy.reason,
-      });
-    }
-
-    const existingAction = await RecoveryAction.findOne({
-      recoveryCaseId: recoveryCase._id,
-      status: { $in: ["pending", "executed", "successful"] },
-    });
-
-    if (existingAction) {
-      return res.status(409).json({
-        message: "Recovery action already exists for this case",
-        recoveryAction: existingAction,
-      });
-    }
-
-    const recoveryAction = await RecoveryAction.create({
-      recoveryCaseId: recoveryCase._id,
-      actionType: analysis.recommendedAction,
-      status: "pending",
-      reason: analysis.reason,
-    });
-
-    await AuditLog.create({
-      merchantId: req.merchant.merchantId,
-      paymentId: payment._id,
-      recoveryCaseId: recoveryCase._id,
-      eventType: "decision_made",
-      message: `Recovery action recommended: ${analysis.recommendedAction}`,
-      metadata: {
-        recoveryScore: analysis.recoveryScore,
-        recommendedAction: analysis.recommendedAction,
-        reason: analysis.reason,
-      },
-    });
-
-    recoveryCase.status = "recovering";
-    await recoveryCase.save();
-
-    res.status(201).json({
-      message: "Recovery action created successfully",
-      recoveryAction,
-      analysis,
-    });
-  } catch (error) {
-    console.error("Recovery action error:", error.message);
-
-    res.status(500).json({
-      message: "Failed to create recovery action",
-    });
-  }
-});
-
-router.post("/:recoveryCaseId/execute", authMiddleware, async (req, res) => {
-  try {
-    const recoveryCase = await RecoveryCase.findOne({
-      _id: req.params.recoveryCaseId,
-      merchantId: req.merchant.merchantId,
-    });
-
-    if (!recoveryCase) {
-      return res.status(404).json({
-        message: "Recovery case not found",
-      });
-    }
-
-    const existingAction = await RecoveryAction.findOne({
-    recoveryCaseId: recoveryCase._id,
-    status: { $in: ["executed", "successful"] },
-  });
-
-  if (existingAction) {
-    return res.status(409).json({
-      message: "Recovery action has already been executed for this case",
-      recoveryAction: existingAction,
-    });
-  }
-
-  const recoveryAction = await RecoveryAction.findOne({
-    recoveryCaseId: recoveryCase._id,
-    status: "pending",
-  });
-    if (!recoveryAction) {
-      return res.status(404).json({
-        message: "No pending recovery action found",
-      });
-    }
-
-    let result;
-
-    switch (recoveryAction.actionType) {
-      case "retry_payment":
-        result = "Payment retry initiated successfully";
-        break;
-
-      case "send_payment_link":
-        result = "Payment link generated and ready to send";
-        break;
-
-      case "notify_customer":
-        result = "Customer notification prepared successfully";
-        break;
-
-      case "change_payment_method":
-        result = "Payment method change requested";
-        break;
-
-      case "manual_review":
-        result = "Case sent for manual review";
-        break;
-
-      default:
-        return res.status(400).json({
-          message: "Unsupported recovery action",
+      if (!recoveryCase) {
+        return res.status(404).json({
+          message: "Recovery case not found",
         });
+      }
+
+      // Do not allow new actions on recovered cases
+      if (recoveryCase.status === "recovered") {
+        return res.status(400).json({
+          message: "This recovery case has already been recovered",
+        });
+      }
+
+      const payment = await Payment.findOne({
+        _id: recoveryCase.paymentId,
+        merchantId,
+      });
+
+      if (!payment) {
+        return res.status(404).json({
+          message: "Payment not found",
+        });
+      }
+
+      // ================================================
+      // ALWAYS RUN THE SAME AI ENGINE
+      // ================================================
+
+      const analysis = analyzeRecoveryCase(payment);
+
+      // ================================================
+      // IMPORTANT FIX
+      // Save AI decision into RecoveryCase BEFORE
+      // running the policy validation.
+      // ================================================
+
+      recoveryCase.failureCategory =
+        analysis.failureCategory;
+
+      recoveryCase.selectedAction =
+        analysis.recommendedAction;
+
+      recoveryCase.recoveryResult =
+        `${analysis.reason} Confidence: ${analysis.confidence}`;
+
+      await recoveryCase.save();
+
+      // ================================================
+      // POLICY VALIDATION
+      // ================================================
+
+      const policy = validateRecoveryAction(
+        analysis.recommendedAction,
+        recoveryCase
+      );
+
+      if (!policy.allowed) {
+        return res.status(403).json({
+          message: "Recovery action blocked by policy",
+          reason: policy.reason,
+          analysis,
+          recoveryCase,
+        });
+      }
+
+      // ================================================
+      // CHECK EXISTING ACTION
+      // ================================================
+
+      const existingAction = await RecoveryAction.findOne({
+        recoveryCaseId: recoveryCase._id,
+        status: {
+          $in: [
+            "pending",
+            "executed",
+            "successful",
+          ],
+        },
+      });
+
+      if (existingAction) {
+        return res.status(409).json({
+          message:
+            "Recovery action already exists for this case",
+          recoveryAction: existingAction,
+        });
+      }
+
+      // ================================================
+      // CREATE RECOVERY ACTION
+      // ================================================
+
+      const recoveryAction =
+        await RecoveryAction.create({
+          recoveryCaseId: recoveryCase._id,
+          actionType: analysis.recommendedAction,
+          status: "pending",
+          reason: analysis.reason,
+        });
+
+      // ================================================
+      // AUDIT LOG
+      // ================================================
+
+      await AuditLog.create({
+        merchantId,
+        paymentId: payment._id,
+        recoveryCaseId: recoveryCase._id,
+        eventType: "decision_made",
+        message:
+          `Recovery action recommended: ${analysis.recommendedAction}`,
+        metadata: {
+          recoveryScore: analysis.recoveryScore,
+          recommendedAction:
+            analysis.recommendedAction,
+          reason: analysis.reason,
+        },
+      });
+
+      // ================================================
+      // UPDATE CASE STATUS
+      // ================================================
+
+      recoveryCase.status = "recovering";
+      await recoveryCase.save();
+
+      res.status(201).json({
+        message:
+          "Recovery action created successfully",
+        recoveryAction,
+        analysis,
+        recoveryCase,
+      });
+
+    } catch (error) {
+      console.error(
+        "Recovery action error:",
+        error.message
+      );
+
+      res.status(500).json({
+        message: "Failed to create recovery action",
+      });
     }
-
-    recoveryAction.status = "executed";
-    recoveryAction.executedAt = new Date();
-    recoveryAction.result = result;
-
-    await recoveryAction.save();
-
-    recoveryCase.status = "recovering";
-    await recoveryCase.save();
-
-    await AuditLog.create({
-      merchantId: req.merchant.merchantId,
-      paymentId: recoveryCase.paymentId,
-      recoveryCaseId: recoveryCase._id,
-      eventType: "action_executed",
-      message: `Recovery action executed: ${recoveryAction.actionType}`,
-      metadata: {
-        actionType: recoveryAction.actionType,
-        result,
-      },
-    });
-
-    res.json({
-      message: "Recovery action executed successfully",
-      recoveryAction,
-      result,
-    });
-  } catch (error) {
-    console.error("Recovery action execution error:", error.message);
-
-    res.status(500).json({
-      message: "Failed to execute recovery action",
-    });
   }
-});
+);
 
-router.post("/:recoveryCaseId/outcome", authMiddleware, async (req, res) => {
-  try {
-    const { outcome } = req.body;
 
-    if (!["successful", "failed"].includes(outcome)) {
-      return res.status(400).json({
-        message: "Outcome must be either successful or failed",
+// =====================================================
+// EXECUTE RECOVERY ACTION
+// POST /api/recovery/:recoveryCaseId/execute
+// =====================================================
+
+router.post(
+  "/:recoveryCaseId/execute",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const merchantId = req.merchant.merchantId;
+      const recoveryCaseId = req.params.recoveryCaseId;
+
+      const recoveryCase = await RecoveryCase.findOne({
+        _id: recoveryCaseId,
+        merchantId,
+      });
+
+      if (!recoveryCase) {
+        return res.status(404).json({
+          message: "Recovery case not found",
+        });
+      }
+
+      // ================================================
+      // CHECK ALREADY EXECUTED ACTION
+      // ================================================
+
+      const executedAction =
+        await RecoveryAction.findOne({
+          recoveryCaseId: recoveryCase._id,
+          status: {
+            $in: [
+              "executed",
+              "successful",
+            ],
+          },
+        });
+
+      if (executedAction) {
+        return res.status(409).json({
+          message:
+            "Recovery action has already been executed for this case",
+          recoveryAction: executedAction,
+        });
+      }
+
+      // ================================================
+      // FIND PENDING ACTION
+      // ================================================
+
+      const recoveryAction =
+        await RecoveryAction.findOne({
+          recoveryCaseId: recoveryCase._id,
+          status: "pending",
+        });
+
+      if (!recoveryAction) {
+        return res.status(404).json({
+          message:
+            "No pending recovery action found",
+        });
+      }
+
+      // ================================================
+      // EXECUTE ACTION
+      // ================================================
+
+      let result;
+
+      switch (recoveryAction.actionType) {
+
+        case "retry_payment":
+          result =
+            "Payment retry initiated successfully";
+          break;
+
+        case "send_payment_link":
+          result =
+            "Payment link generated and ready to send";
+          break;
+
+        case "notify_customer":
+          result =
+            "Customer notification prepared successfully";
+          break;
+
+        case "change_payment_method":
+          result =
+            "Payment method change requested";
+          break;
+
+        case "manual_review":
+          result =
+            "Case sent for manual review";
+          break;
+
+        default:
+          return res.status(400).json({
+            message:
+              "Unsupported recovery action",
+          });
+      }
+
+      recoveryAction.status = "executed";
+      recoveryAction.executedAt = new Date();
+      recoveryAction.result = result;
+
+      await recoveryAction.save();
+
+      recoveryCase.status = "recovering";
+      await recoveryCase.save();
+
+      // ================================================
+      // AUDIT LOG
+      // ================================================
+
+      await AuditLog.create({
+        merchantId,
+        paymentId: recoveryCase.paymentId,
+        recoveryCaseId: recoveryCase._id,
+        eventType: "action_executed",
+        message:
+          `Recovery action executed: ${recoveryAction.actionType}`,
+        metadata: {
+          actionType:
+            recoveryAction.actionType,
+          result,
+        },
+      });
+
+      res.json({
+        message:
+          "Recovery action executed successfully",
+        recoveryAction,
+        result,
+      });
+
+    } catch (error) {
+      console.error(
+        "Recovery action execution error:",
+        error.message
+      );
+
+      res.status(500).json({
+        message:
+          "Failed to execute recovery action",
       });
     }
+  }
+);
 
-    const recoveryCase = await RecoveryCase.findOne({
-      _id: req.params.recoveryCaseId,
-      merchantId: req.merchant.merchantId,
-    });
 
-    if (!recoveryCase) {
-      return res.status(404).json({
-        message: "Recovery case not found",
-      });
-    }
+// =====================================================
+// UPDATE RECOVERY OUTCOME
+// POST /api/recovery/:recoveryCaseId/outcome
+// =====================================================
 
-    const recoveryAction = await RecoveryAction.findOne({
-      recoveryCaseId: recoveryCase._id,
-      status: "executed",
-    });
+router.post(
+  "/:recoveryCaseId/outcome",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { outcome } = req.body;
+      const merchantId = req.merchant.merchantId;
 
-    if (!recoveryAction) {
-      return res.status(404).json({
-        message: "No executed recovery action found",
-      });
-    }
+      if (
+        !["successful", "failed"].includes(outcome)
+      ) {
+        return res.status(400).json({
+          message:
+            "Outcome must be either successful or failed",
+        });
+      }
 
-    recoveryAction.status = outcome;
-    recoveryAction.result =
-      outcome === "successful"
-        ? "Payment successfully recovered"
-        : "Recovery attempt failed";
+      const recoveryCase =
+        await RecoveryCase.findOne({
+          _id: req.params.recoveryCaseId,
+          merchantId,
+        });
 
-    await recoveryAction.save();
+      if (!recoveryCase) {
+        return res.status(404).json({
+          message: "Recovery case not found",
+        });
+      }
 
-    recoveryCase.status =
-      outcome === "successful" ? "recovered" : "failed";
+      const recoveryAction =
+        await RecoveryAction.findOne({
+          recoveryCaseId: recoveryCase._id,
+          status: "executed",
+        });
 
-    if (outcome === "successful") {
-      const payment = await Payment.findById(recoveryCase.paymentId);
+      if (!recoveryAction) {
+        return res.status(404).json({
+          message:
+            "No executed recovery action found",
+        });
+      }
 
-      recoveryCase.recoveredAmount = payment ? payment.amount : 0;
-    } else {
-      recoveryCase.recoveredAmount = 0;
-    }
+      // ================================================
+      // UPDATE ACTION
+      // ================================================
 
-    await recoveryCase.save();
+      recoveryAction.status = outcome;
 
-    await AuditLog.create({
-      merchantId: req.merchant.merchantId,
-      paymentId: recoveryCase.paymentId,
-      recoveryCaseId: recoveryCase._id,
-      eventType:
-        outcome === "successful"
-          ? "recovery_completed"
-          : "recovery_failed",
-      message:
+      recoveryAction.result =
         outcome === "successful"
           ? "Payment successfully recovered"
-          : "Recovery attempt failed",
-      metadata: {
-        actionType: recoveryAction.actionType,
-        outcome,
-      },
-    });
+          : "Recovery attempt failed";
 
-    res.json({
-      message:
+      await recoveryAction.save();
+
+      // ================================================
+      // UPDATE CASE
+      // ================================================
+
+      recoveryCase.status =
         outcome === "successful"
-          ? "Recovery completed successfully"
-          : "Recovery marked as failed",
-      recoveryCase,
-      recoveryAction,
-    });
-  } catch (error) {
-    console.error("Recovery outcome error:", error.message);
+          ? "recovered"
+          : "failed";
 
-    res.status(500).json({
-      message: "Failed to update recovery outcome",
-    });
+      if (outcome === "successful") {
+
+        const payment =
+          await Payment.findOne({
+            _id: recoveryCase.paymentId,
+            merchantId,
+          });
+
+        recoveryCase.recoveredAmount =
+          payment ? payment.amount : 0;
+
+      } else {
+
+        recoveryCase.recoveredAmount = 0;
+
+      }
+
+      await recoveryCase.save();
+
+      // ================================================
+      // AUDIT LOG
+      // ================================================
+
+      await AuditLog.create({
+        merchantId,
+        paymentId: recoveryCase.paymentId,
+        recoveryCaseId: recoveryCase._id,
+        eventType:
+          outcome === "successful"
+            ? "recovery_completed"
+            : "recovery_failed",
+        message:
+          outcome === "successful"
+            ? "Payment successfully recovered"
+            : "Recovery attempt failed",
+        metadata: {
+          actionType:
+            recoveryAction.actionType,
+          outcome,
+        },
+      });
+
+      res.json({
+        message:
+          outcome === "successful"
+            ? "Recovery completed successfully"
+            : "Recovery marked as failed",
+        recoveryCase,
+        recoveryAction,
+      });
+
+    } catch (error) {
+      console.error(
+        "Recovery outcome error:",
+        error.message
+      );
+
+      res.status(500).json({
+        message:
+          "Failed to update recovery outcome",
+      });
+    }
   }
-});
+);
+
 
 module.exports = router;
-
-//module.exports = router;

@@ -5,7 +5,6 @@ const RecoveryAction = require("../models/RecoveryAction");
 
 // =====================================================
 // DASHBOARD AI INSIGHTS
-// =====================================================
 
 const generateAIInsights = async (merchantId) => {
     const payments = await Payment.find({ merchantId });
@@ -90,7 +89,7 @@ const generateAIInsights = async (merchantId) => {
 
 const analyzeRecoveryCase = async (merchantId, recoveryCaseId) => {
 
-    const recoveryCase = await RecoveryCase.find({
+    const recoveryCase = await RecoveryCase.findOne({
         _id: recoveryCaseId,
         merchantId,
     });

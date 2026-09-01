@@ -7,6 +7,7 @@ import Sidebar from "./components/Sidebar";
 import RecoveryCases from "./components/RecoveryCases";
 import AIInsights from "./components/AIInsights";
 import AuditLogs from "./components/AuditLogs";
+import CreatePayment from "./pages/CreatePayment";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -46,6 +47,8 @@ function App() {
         {currentPage === "ai-insights" && <AIInsights />}
 
         {currentPage === "audit" && <AuditLogs />}
+
+        {currentPage === "create-payment" && <CreatePayment />}
 
         <button
           onClick={handleLogout}

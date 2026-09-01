@@ -27,10 +27,15 @@ function Sidebar({ currentPage, setCurrentPage }) {
                     <span>Dashboard</span>
                 </button>
 
-                <a href="#payments" className="sidebar-link">
+                <button
+                    className={`sidebar-link ${
+                        currentPage === "create-payment" ? "active" : ""
+                    }`}
+                    onClick={() => setCurrentPage("create-payment")}
+                >
                     <i className="bi bi-credit-card"></i>
                     <span>Payments</span>
-                </a>
+                </button>
 
                 <button
                     className={`sidebar-link ${currentPage === "recovery" ? "active" : ""
