@@ -46,9 +46,9 @@ function Sidebar({ currentPage, setCurrentPage }) {
                     <span>Recovery Cases</span>
                 </button>
 
-                <div className="sidebar-section-title">
-                    INTELLIGENCE
-                </div>
+                {/* <div className="sidebar-section-title">
+                    INTELLIGENCE            editeddddddd
+                </div> */}
 
                 <button
                     className={`sidebar-link ${currentPage === "ai-insights" ? "active" : ""}`}
