@@ -1,0 +1,353 @@
+/* =========================================
+   CREATE PAYMENT PAGE
+========================================= */
+
+.create-payment-page {
+    padding: 32px;
+    min-height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+    background: #f6f8fb;
+}
+
+
+/* =========================================
+   PAGE HEADER
+========================================= */
+
+.create-payment-header {
+    margin-bottom: 28px;
+}
+
+.create-payment-header h1 {
+    margin: 0 0 6px 0;
+    font-size: 30px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.create-payment-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* =========================================
+   PAYMENT CARD
+========================================= */
+
+.create-payment-card {
+    width: 100%;
+    box-sizing: border-box;
+    background: #ffffff;
+    border: 1px solid #e8ebf0;
+    border-radius: 14px;
+    padding: 30px;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+}
+
+
+/* =========================================
+   CARD HEADER
+========================================= */
+
+.payment-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 26px;
+}
+
+.payment-card-header h3 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 650;
+    color: #1f2937;
+}
+
+.test-payment-label {
+    padding: 6px 11px;
+    border-radius: 6px;
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+
+/* =========================================
+   FORM GROUP
+========================================= */
+
+.payment-form-group {
+    margin-bottom: 21px;
+}
+
+.payment-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* =========================================
+   INPUTS & SELECTS
+========================================= */
+
+.payment-form-group input,
+.payment-form-group select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid #dfe3e8;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1f2937;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.payment-form-group input::placeholder {
+    color: #9ca3af;
+}
+
+.payment-form-group input:hover,
+.payment-form-group select:hover {
+    border-color: #c7cdd4;
+}
+
+.payment-form-group input:focus,
+.payment-form-group select:focus {
+    border-color: #9ca3af;
+    box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.12);
+}
+
+.payment-form-group input:disabled {
+    background: #f8fafc;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+
+/* =========================================
+   AMOUNT FIELD
+========================================= */
+
+.amount-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.amount-input-wrapper span {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 1;
+}
+
+.amount-input-wrapper input {
+    padding-left: 32px;
+}
+
+
+/* =========================================
+   CREATE PAYMENT BUTTON
+========================================= */
+
+.payment-submit-button {
+    width: 100%;
+    margin-top: 5px;
+    padding: 13px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #1f2937;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.payment-submit-button:hover {
+    background: #111827;
+    transform: translateY(-1px);
+}
+
+.payment-submit-button:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================
+   SUCCESS MESSAGE
+========================================= */
+
+.payment-success {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 13px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #f3f4f6;
+    color: #1f2937;
+    font-size: 14px;
+}
+
+.payment-success strong {
+    font-size: 16px;
+}
+
+
+/* =========================================
+   ERROR MESSAGE
+========================================= */
+
+.payment-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 13px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #f9fafb;
+    color: #374151;
+    font-size: 14px;
+}
+
+.payment-error strong {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #374151;
+    color: #ffffff;
+    font-size: 11px;
+}
+
+
+/* =========================================
+   RECOVERY SECTION
+========================================= */
+
+.recovery-action-section {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 20px;
+    padding: 25px 30px;
+    background: #ffffff;
+    border: 1px solid #e8ebf0;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+}
+
+.recovery-section-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.recovery-action-section h3 {
+    margin: 0 0 7px 0;
+    color: #1f2937;
+    font-size: 18px;
+    font-weight: 650;
+}
+
+.recovery-action-section p {
+    max-width: 900px;
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   CREATE RECOVERY BUTTON
+========================================= */
+
+.create-recovery-button {
+    flex-shrink: 0;
+    padding: 11px 19px;
+    border: none;
+    border-radius: 8px;
+    background: #374151;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.create-recovery-button:hover {
+    background: #1f2937;
+    transform: translateY(-1px);
+}
+
+.create-recovery-button:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 800px) {
+
+    .create-payment-page {
+        padding: 24px;
+    }
+
+    .recovery-section-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .create-recovery-button {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .create-payment-page {
+        padding: 18px;
+    }
+
+    .create-payment-card {
+        padding: 20px;
+    }
+
+    .recovery-action-section {
+        padding: 20px;
+    }
+
+    .payment-card-header {
+        align-items: flex-start;
+        gap: 12px;
+        flex-direction: column;
+    }
+
+    .create-payment-header h1 {
+        font-size: 26px;
+    }
+}

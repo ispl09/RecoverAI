@@ -149,3 +149,29 @@ export const createRecoveryCase = async (token, paymentId) => {
 
   return data;
 };
+
+export const batchRecover = async (token, recoveryCaseIds) => {
+  const response = await fetch(
+    `${API_URL}/batch-recovery/batch-recover`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        recoveryCaseIds,
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || "Failed to process batch recovery"
+    );
+  }
+
+  return data;
+};

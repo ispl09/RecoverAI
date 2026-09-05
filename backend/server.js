@@ -12,6 +12,7 @@ const aiInsightRoutes = require("./routes/aiInsightRoutes");
 const cors = require("cors");
 const recoveryCaseRoutes = require("./routes/recoveryCaseRoutes");
 const auditLogRoutes = require("./routes/auditLogRoutes");
+const batchRecoveryRoutes = require("./routes/batchRecoveryRoutes");
 
 const app = express();
 app.use(
@@ -30,6 +31,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/ai-insights", aiInsightRoutes);
 app.use("/api/recovery-cases", recoveryCaseRoutes);
 app.use("/api/audit-logs", auditLogRoutes);
+app.use("/api/batch-recovery", batchRecoveryRoutes);
 
 const PORT = 5000;
 

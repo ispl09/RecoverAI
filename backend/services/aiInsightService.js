@@ -23,10 +23,28 @@ const generateAIInsights = async (merchantId) => {
         (recoveryCase) => recoveryCase.status === "recovered"
     );
 
-    const revenueAtRisk = failedPayments.reduce(
-        (total, payment) => total + payment.amount,
-        0
+    const recoveredPaymentIds = new Set(
+        recoveryCases
+            .filter(
+                (recoveryCase) =>
+                    recoveryCase.status === "recovered"
+            )
+            .map((recoveryCase) =>
+                recoveryCase.paymentId.toString()
+            )
     );
+
+    const revenueAtRisk = failedPayments
+        .filter(
+            (payment) =>
+                !recoveredPaymentIds.has(
+                    payment._id.toString()
+                )
+        )
+        .reduce(
+            (total, payment) => total + payment.amount,
+            0
+        );
 
     const recoveryRate =
         failedPayments.length > 0

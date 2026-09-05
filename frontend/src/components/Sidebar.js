@@ -28,9 +28,8 @@ function Sidebar({ currentPage, setCurrentPage }) {
                 </button>
 
                 <button
-                    className={`sidebar-link ${
-                        currentPage === "create-payment" ? "active" : ""
-                    }`}
+                    className={`sidebar-link ${currentPage === "create-payment" ? "active" : ""
+                        }`}
                     onClick={() => setCurrentPage("create-payment")}
                 >
                     <i className="bi bi-credit-card"></i>
@@ -59,9 +58,8 @@ function Sidebar({ currentPage, setCurrentPage }) {
                 </button>
 
                 <button
-                    className={`sidebar-link ${
-                        currentPage === "audit" ? "active" : ""
-                    }`}
+                    className={`sidebar-link ${currentPage === "audit" ? "active" : ""
+                        }`}
                     onClick={() => setCurrentPage("audit")}
                 >
                     <i className="bi bi-journal-text"></i>
@@ -72,7 +70,11 @@ function Sidebar({ currentPage, setCurrentPage }) {
                     SYSTEM
                 </div>
 
-                <a href="#settings" className="sidebar-link">
+                <a
+                    href="#settings"
+                    className="sidebar-link"
+                    onClick={() => setCurrentPage("settings")}
+                >
                     <i className="bi bi-gear"></i>
                     <span>Settings</span>
                 </a>
@@ -85,8 +87,12 @@ function Sidebar({ currentPage, setCurrentPage }) {
                         D
                     </div>
 
-                    <div className="user-info">
-                        <strong>Demo Merchant</strong>
+                    <div
+                        className="user-info"
+                        onClick={() => setCurrentPage("settings")}
+                        style={{ cursor: "pointer" }}
+                    >
+                        <strong>Ishika Paul</strong>
                         <small>Merchant Account</small>
                     </div>
                 </div>

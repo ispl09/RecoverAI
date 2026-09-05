@@ -2,35 +2,67 @@ import { useEffect, useState } from "react";
 import { getRecoveryCases } from "../services/recoveryCaseService";
 import "../css/RecoveryCases.css";
 import RecoveryCaseDetails from "./RecoveryCaseDetails";
+//import { batchRecover } from "../services/recoveryCaseService";
+import BatchRecoveryButton from "./BatchRecoveryButton";
+import BatchRecoveryResults from "./BatchRecoveryResults";
 
 function RecoveryCases() {
     const [cases, setCases] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [selectedCaseId, setSelectedCaseId] = useState(null);
+    const [selectedCaseIds, setSelectedCaseIds] = useState([]);
+    const [batchResult, setBatchResult] = useState(null);
+
+    // useEffect(() => {
+    //     const loadRecoveryCases = async () => {
+    //         try {
+    //             const token = localStorage.getItem("token");
+
+    //             if (!token) {
+    //                 setError("Authentication required");
+    //                 setLoading(false);
+    //                 return;
+    //             }
+
+    //             const data = await getRecoveryCases(token);
+
+    //             setCases(data);
+    //         } catch (error) {
+    //             console.error("Recovery cases loading error:", error);
+    //             setError("Failed to load recovery cases");
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     loadRecoveryCases();
+    // }, []);
+
+    const loadRecoveryCases = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                setError("Authentication required");
+                return;
+            }
+
+            setLoading(true);
+            setError("");
+
+            const data = await getRecoveryCases(token);
+
+            setCases(data);
+        } catch (error) {
+            console.error("Recovery cases loading error:", error);
+            setError("Failed to load recovery cases");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const loadRecoveryCases = async () => {
-            try {
-                const token = localStorage.getItem("token");
-
-                if (!token) {
-                    setError("Authentication required");
-                    setLoading(false);
-                    return;
-                }
-
-                const data = await getRecoveryCases(token);
-
-                setCases(data);
-            } catch (error) {
-                console.error("Recovery cases loading error:", error);
-                setError("Failed to load recovery cases");
-            } finally {
-                setLoading(false);
-            }
-        };
-
         loadRecoveryCases();
     }, []);
 
@@ -39,6 +71,15 @@ function RecoveryCases() {
             <RecoveryCaseDetails
                 caseId={selectedCaseId}
                 onBack={() => setSelectedCaseId(null)}
+            />
+        );
+    }
+
+    if (batchResult) {
+        return (
+            <BatchRecoveryResults
+                result={batchResult}
+                onBack={() => setBatchResult(null)}
             />
         );
     }
@@ -73,6 +114,13 @@ function RecoveryCases() {
                 <span className="case-count">
                     {cases.length} Cases
                 </span>
+
+                <BatchRecoveryButton
+                    selectedCaseIds={selectedCaseIds}
+                    onComplete={(result) => {
+                        setBatchResult(result);
+                    }}
+                />
             </div>
 
             {cases.length === 0 ? (
@@ -111,7 +159,28 @@ function RecoveryCases() {
                                     >
 
                                         <td>
-                                            <strong>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedCaseIds.includes(recoveryCase._id)}
+                                                onChange={(e) => {
+                                                    e.stopPropagation();
+
+                                                    if (e.target.checked) {
+                                                        setSelectedCaseIds((prev) => [
+                                                            ...prev,
+                                                            recoveryCase._id,
+                                                        ]);
+                                                    } else {
+                                                        setSelectedCaseIds((prev) =>
+                                                            prev.filter(
+                                                                (id) => id !== recoveryCase._id
+                                                            )
+                                                        );
+                                                    }
+                                                }}
+                                            />
+
+                                            <strong className="ms-2">
                                                 {recoveryCase.paymentId?.razorpayPaymentId ||
                                                     "N/A"}
                                             </strong>

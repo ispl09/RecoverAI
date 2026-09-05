@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createPayment } from "../services/paymentService";
 import { createRecoveryCase } from "../services/recoveryCaseService";
+import "../css/CreatePayment.css";
 
 function CreatePayment() {
   const [formData, setFormData] = useState({
@@ -58,19 +59,158 @@ function CreatePayment() {
     }
   };
 
+  // return (
+  //   <div className="container mt-4">
+  //     <h2>Create Test Payment</h2>
+  //     <p>Create payments to test RecoverAI.</p>
+
+  //     <form onSubmit={handleSubmit}>
+
+  //       <div className="mb-3">
+  //         <label>Payment ID</label>
+  //         <input
+  //           type="text"
+  //           name="razorpayPaymentId"
+  //           className="form-control"
+  //           value={formData.razorpayPaymentId}
+  //           onChange={handleChange}
+  //           placeholder="pay_test_001"
+  //           required
+  //         />
+  //       </div>
+
+  //       <div className="mb-3">
+  //         <label>Amount</label>
+  //         <input
+  //           type="number"
+  //           name="amount"
+  //           className="form-control"
+  //           value={formData.amount}
+  //           onChange={handleChange}
+  //           placeholder="1800"
+  //           required
+  //         />
+  //       </div>
+
+  //       <div className="mb-3">
+  //         <label>Status</label>
+  //         <select
+  //           name="status"
+  //           className="form-select"
+  //           value={formData.status}
+  //           onChange={handleChange}
+  //         >
+  //           <option value="failed">Failed</option>
+  //           <option value="successful">Successful</option>
+  //         </select>
+  //       </div>
+
+  //       {formData.status === "failed" && (
+  //         <div className="mb-3">
+  //           <label>Failure Reason</label>
+  //           <select
+  //             name="failureReason"
+  //             className="form-select"
+  //             value={formData.failureReason}
+  //             onChange={handleChange}
+  //           >
+  //             <option value="insufficient funds">
+  //               Insufficient Funds
+  //             </option>
+
+  //             <option value="bank declined">
+  //               Bank Declined
+  //             </option>
+
+  //             <option value="network error">
+  //               Network Error
+  //             </option>
+
+  //             <option value="authentication failed">
+  //               Authentication Failed
+  //             </option>
+
+  //             <option value="unknown">
+  //               Unknown
+  //             </option>
+  //           </select>
+  //         </div>
+  //       )}
+
+  //       <button type="submit" className="btn btn-primary">
+  //         Create Payment
+  //       </button>
+
+  //     </form>
+
+  //     {message && (
+  //       <div className="alert alert-success mt-3">
+  //         {message}
+  //       </div>
+  //     )}
+
+  //     {createdPayment && createdPayment.status === "failed" && (
+  //       <button
+  //           type="button"
+  //           className="btn btn-warning mt-3"
+  //           onClick={async () => {
+  //           try {
+  //               setError("");
+  //               setMessage("");
+
+  //               const token = localStorage.getItem("token");
+
+  //               if (!token) {
+  //               setError("Authentication required");
+  //               return;
+  //               }
+
+  //               await createRecoveryCase(
+  //               token,
+  //               createdPayment._id
+  //               );
+
+  //               setMessage("Recovery case created successfully!");
+  //           } catch (err) {
+  //               setError(
+  //               err.message || "Failed to create recovery case"
+  //               );
+  //           }
+  //           }}
+  //       >
+  //           Create Recovery Case
+  //       </button>
+  //       )}
+
+  //     {error && (
+  //       <div className="alert alert-danger mt-3">
+  //         {error}
+  //       </div>
+  //     )}
+  //   </div>
+  // );
+
   return (
-    <div className="container mt-4">
-      <h2>Create Test Payment</h2>
-      <p>Create payments to test RecoverAI.</p>
+  <div className="create-payment-page">
+
+    <div className="create-payment-header">
+      <h1>Create Test Payment</h1>
+      <p>
+        Create payments to test RecoverAI's revenue recovery workflow.
+      </p>
+    </div>
+
+    <div className="create-payment-card">
+
+      <h3>Payment Details</h3>
 
       <form onSubmit={handleSubmit}>
 
-        <div className="mb-3">
+        <div className="payment-form-group">
           <label>Payment ID</label>
           <input
             type="text"
             name="razorpayPaymentId"
-            className="form-control"
             value={formData.razorpayPaymentId}
             onChange={handleChange}
             placeholder="pay_test_001"
@@ -78,12 +218,11 @@ function CreatePayment() {
           />
         </div>
 
-        <div className="mb-3">
+        <div className="payment-form-group">
           <label>Amount</label>
           <input
             type="number"
             name="amount"
-            className="form-control"
             value={formData.amount}
             onChange={handleChange}
             placeholder="1800"
@@ -91,11 +230,10 @@ function CreatePayment() {
           />
         </div>
 
-        <div className="mb-3">
+        <div className="payment-form-group">
           <label>Status</label>
           <select
             name="status"
-            className="form-select"
             value={formData.status}
             onChange={handleChange}
           >
@@ -105,11 +243,11 @@ function CreatePayment() {
         </div>
 
         {formData.status === "failed" && (
-          <div className="mb-3">
+          <div className="payment-form-group">
             <label>Failure Reason</label>
+
             <select
               name="failureReason"
-              className="form-select"
               value={formData.failureReason}
               onChange={handleChange}
             >
@@ -136,58 +274,77 @@ function CreatePayment() {
           </div>
         )}
 
-        <button type="submit" className="btn btn-primary">
+        <button
+          type="submit"
+          className="payment-submit-button"
+        >
           Create Payment
         </button>
 
       </form>
 
       {message && (
-        <div className="alert alert-success mt-3">
+        <div className="payment-success">
           {message}
         </div>
       )}
 
-      {createdPayment && createdPayment.status === "failed" && (
-        <button
-            type="button"
-            className="btn btn-warning mt-3"
-            onClick={async () => {
-            try {
-                setError("");
-                setMessage("");
-
-                const token = localStorage.getItem("token");
-
-                if (!token) {
-                setError("Authentication required");
-                return;
-                }
-
-                await createRecoveryCase(
-                token,
-                createdPayment._id
-                );
-
-                setMessage("Recovery case created successfully!");
-            } catch (err) {
-                setError(
-                err.message || "Failed to create recovery case"
-                );
-            }
-            }}
-        >
-            Create Recovery Case
-        </button>
-        )}
-
       {error && (
-        <div className="alert alert-danger mt-3">
+        <div className="payment-error">
           {error}
         </div>
       )}
+
     </div>
-  );
+
+    {createdPayment && createdPayment.status === "failed" && (
+      <div className="recovery-action-section">
+
+        <p>
+          This payment failed. You can now create a recovery case
+          for RecoverAI to analyze and recover the payment.
+        </p>
+
+        <button
+          type="button"
+          className="create-recovery-button"
+          onClick={async () => {
+            try {
+              setError("");
+              setMessage("");
+
+              const token = localStorage.getItem("token");
+
+              if (!token) {
+                setError("Authentication required");
+                return;
+              }
+
+              await createRecoveryCase(
+                token,
+                createdPayment._id
+              );
+
+              setMessage(
+                "Recovery case created successfully!"
+              );
+
+            } catch (err) {
+              setError(
+                err.message ||
+                "Failed to create recovery case"
+              );
+            }
+          }}
+        >
+          Create Recovery Case
+        </button>
+
+      </div>
+    )}
+
+  </div>
+);
 }
 
 export default CreatePayment;

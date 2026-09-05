@@ -10,9 +10,12 @@
 
 .logout-button {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  top: 18px;
+  right: 24px;
   z-index: 1100;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 6px;
 }
 
 @media (max-width: 768px) {

@@ -108,6 +108,43 @@ router.post(
         });
       }
 
+      // Stopping rule: maximum 2 failed recovery attempts
+      const failedAttempts = await RecoveryAction.countDocuments({
+        recoveryCaseId: recoveryCase._id,
+        status: "failed",
+      });
+
+      if (failedAttempts >= 2) {
+        recoveryCase.selectedAction = "manual_review";
+        recoveryCase.recoveryResult =
+          "Maximum recovery attempts reached. Escalated for manual review.";
+        recoveryCase.status = "pending";
+
+        await recoveryCase.save();
+
+        await AuditLog.create({
+          merchantId,
+          paymentId: recoveryCase.paymentId,
+          recoveryCaseId: recoveryCase._id,
+          eventType: "safety_check",
+          message:
+            "Maximum recovery attempts reached. Automatic recovery stopped and case escalated for manual review.",
+          metadata: {
+            failureCategory: recoveryCase.failureCategory,
+            failedAttempts,
+            maxAttempts: 2,
+            escalation: "manual_review",
+          },
+        });
+
+        return res.status(409).json({
+          message:
+            "Maximum recovery attempts reached. Manual review required.",
+          status: "escalated",
+          action: "manual_review",
+        });
+      }
+
       // Do not allow new actions on recovered cases
       if (recoveryCase.status === "recovered") {
         return res.status(400).json({
@@ -153,15 +190,15 @@ router.post(
       // POLICY VALIDATION
       // ================================================
 
-      const policy = validateRecoveryAction(
+      const policyCheck = validateRecoveryAction(
         analysis.recommendedAction,
         recoveryCase
       );
 
-      if (!policy.allowed) {
+      if (!policyCheck.allowed) {
         return res.status(403).json({
           message: "Recovery action blocked by policy",
-          reason: policy.reason,
+          reason: policyCheck.reason,
           analysis,
           recoveryCase,
         });
@@ -314,43 +351,81 @@ router.post(
         });
       }
 
+      const payment = await Payment.findOne({
+        _id: recoveryCase.paymentId,
+        merchantId,
+      });
+
+      if (!payment) {
+        return res.status(404).json({
+          message: "Payment not found",
+        });
+      }
+
       // ================================================
       // EXECUTE ACTION
       // ================================================
 
       let result;
 
-      switch (recoveryAction.actionType) {
+      // switch (recoveryAction.actionType) {
 
+      //   case "retry_payment":
+      //     result =
+      //       "Payment retry initiated successfully";
+      //     break;
+
+      //   case "send_payment_link":
+      //     result =
+      //       "Payment link generated and ready to send";
+      //     break;
+
+      //   case "notify_customer":
+      //     result =
+      //       "Customer notification prepared successfully";
+      //     break;
+
+      //   case "change_payment_method":
+      //     result =
+      //       "Payment method change requested";
+      //     break;
+
+      //   case "manual_review":
+      //     result =
+      //       "Case sent for manual review";
+      //     break;
+
+      //   default:
+      //     return res.status(400).json({
+      //       message:
+      //         "Unsupported recovery action",
+      //     });
+      // }
+
+      switch (recoveryAction.actionType) {
         case "retry_payment":
-          result =
-            "Payment retry initiated successfully";
+          result = `Payment retry executed for ₹${payment.amount}. Awaiting recovery outcome.`;
           break;
 
         case "send_payment_link":
-          result =
-            "Payment link generated and ready to send";
+          result = `Recovery payment link generated for ₹${payment.amount}. Awaiting customer payment.`;
           break;
 
         case "notify_customer":
-          result =
-            "Customer notification prepared successfully";
+          result = `Customer recovery notification sent for ₹${payment.amount}.`;
           break;
 
         case "change_payment_method":
-          result =
-            "Payment method change requested";
+          result = `Payment method change workflow initiated for ₹${payment.amount}.`;
           break;
 
         case "manual_review":
-          result =
-            "Case sent for manual review";
+          result = "Case sent for manual review.";
           break;
 
         default:
           return res.status(400).json({
-            message:
-              "Unsupported recovery action",
+            message: "Unsupported recovery action",
           });
       }
 

@@ -1,183 +1,537 @@
+/* =========================================================
+   RECOVERAI — RECOVERY CASES
+   Modern SaaS / AI Revenue Recovery UI
+   ========================================================= */
+
 .recovery-page {
-  padding: 30px;
-  min-height: 100vh;
-  background: #f5f7fb;
+    min-height: 100vh;
+    padding: 32px;
+    background: #f6f8fc;
+    box-sizing: border-box;
+    color: #111827;
 }
 
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
 .recovery-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.recovery-header > div:first-child {
+    flex: 1;
 }
 
 .recovery-header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  color: #111827;
+    margin: 0;
+    color: #111827;
+    font-size: 30px;
+    font-weight: 750;
+    letter-spacing: -0.6px;
 }
 
 .recovery-header p {
-  margin: 6px 0 0;
-  color: #6b7280;
-  font-size: 14px;
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-size: 14px;
 }
+
+
+/* =========================================================
+   CASE COUNT
+   ========================================================= */
 
 .case-count {
-  padding: 8px 14px;
-  border-radius: 20px;
-  background: #e8f1ff;
-  color: #0d6efd;
-  font-size: 13px;
-  font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 70px;
+    padding: 8px 14px;
+
+    border: 1px solid #dbe7fb;
+    border-radius: 20px;
+
+    background: #eef5ff;
+    color: #0d6efd;
+
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
 }
+
+
+/* =========================================================
+   TABLE CARD
+   ========================================================= */
 
 .recovery-table-card {
-  border: none;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+
+    border: 1px solid #e8ebf1 !important;
+    border-radius: 16px !important;
+
+    background: #ffffff;
+
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.045);
+
+    transition:
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
 }
+
+.recovery-table-card:hover {
+    border-color: #dfe5ee !important;
+    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.065);
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
 
 .recovery-table {
-  margin-bottom: 0;
-  vertical-align: middle;
+    width: 100%;
+    margin-bottom: 0 !important;
+    vertical-align: middle;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
 .recovery-table thead {
-  background: #f8fafc;
+    background: #f8fafc;
 }
 
 .recovery-table th {
-  padding: 16px 20px;
-  border-bottom: 1px solid #e5e7eb;
-  color: #6b7280;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+    padding: 15px 20px;
+
+    border-bottom: 1px solid #e5e7eb !important;
+
+    color: #6b7280;
+    background: #f8fafc;
+
+    font-size: 11px;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.55px;
+
+    white-space: nowrap;
 }
 
+.recovery-table th:first-child {
+    padding-left: 24px;
+}
+
+
+/* =========================================================
+   TABLE BODY
+   ========================================================= */
+
 .recovery-table td {
-  padding: 18px 20px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #374151;
-  font-size: 14px;
+    padding: 17px 20px;
+
+    border-bottom: 1px solid #eef1f5 !important;
+
+    color: #374151;
+    background: #ffffff;
+
+    font-size: 14px;
+}
+
+.recovery-table td:first-child {
+    padding-left: 24px;
+}
+
+
+/* =========================================================
+   ROW INTERACTION
+   ========================================================= */
+
+.recovery-case-row {
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.recovery-case-row:hover td {
+    background: #f8fafc;
 }
 
 .recovery-table tbody tr:last-child td {
-  border-bottom: none;
+    border-bottom: none !important;
 }
 
-.recovery-table tbody tr:hover {
-  background: #f8fafc;
+
+/* =========================================================
+   PAYMENT ID
+   ========================================================= */
+
+.recovery-table td strong {
+    color: #1f2937;
+    font-size: 13.5px;
+    font-weight: 650;
 }
+
+
+/* =========================================================
+   CHECKBOX
+   ========================================================= */
+
+.recovery-table input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+
+    margin: 0;
+
+    accent-color: #0d6efd;
+
+    cursor: pointer;
+
+    vertical-align: middle;
+}
+
+.recovery-table input[type="checkbox"]:focus {
+    outline: 2px solid rgba(13, 110, 253, 0.18);
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
 
 .status-badge {
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: capitalize;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 72px;
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: capitalize;
+    line-height: 1.2;
+    white-space: nowrap;
 }
+
+
+/* =========================================================
+   PAYMENT STATUS
+   ========================================================= */
 
 .payment-failed {
-  background: #fee2e2;
-  color: #dc2626;
+    background: #fff0f0;
+    color: #dc3545;
+    border: 1px solid #ffd8d8;
 }
 
+
+/* =========================================================
+   RECOVERY STATUS
+   ========================================================= */
+
 .recovery-pending {
-  background: #fef3c7;
-  color: #d97706;
+    background: #fff7e6;
+    color: #b77900;
+    border: 1px solid #ffe8b3;
 }
 
 .recovery-analyzing {
-  background: #e0e7ff;
-  color: #4f46e5;
+    background: #f0edff;
+    color: #635bca;
+    border: 1px solid #ddd7ff;
 }
 
 .recovery-recovering {
-  background: #dbeafe;
-  color: #2563eb;
+    background: #eaf4ff;
+    color: #0d6efd;
+    border: 1px solid #d5e8ff;
 }
 
 .recovery-recovered {
-  background: #dcfce7;
-  color: #16a34a;
+    background: #eaf8ef;
+    color: #198754;
+    border: 1px solid #d3f0dc;
 }
 
 .recovery-failed {
-  background: #fee2e2;
-  color: #dc2626;
+    background: #fff0f0;
+    color: #dc3545;
+    border: 1px solid #ffd8d8;
 }
 
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
 .empty-recovery {
-  padding: 70px 20px;
-  text-align: center;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 360px;
+    padding: 60px 20px;
+
+    border: 1px solid #e8ebf1;
+    border-radius: 16px;
+
+    background: #ffffff;
+
+    text-align: center;
+
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.045);
 }
 
 .empty-recovery i {
-  font-size: 48px;
-  color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 64px;
+    height: 64px;
+
+    margin-bottom: 18px;
+
+    border-radius: 16px;
+
+    background: #eaf8ef;
+    color: #198754;
+
+    font-size: 30px;
 }
 
 .empty-recovery h3 {
-  margin-top: 15px;
-  color: #111827;
+    margin: 0 0 7px;
+
+    color: #111827;
+
+    font-size: 19px;
+    font-weight: 700;
 }
 
 .empty-recovery p {
-  color: #6b7280;
+    max-width: 420px;
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 13.5px;
+    line-height: 1.5;
 }
 
-.recovery-loading,
-.recovery-error {
-  min-height: 70vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #6b7280;
+
+/* =========================================================
+   LOADING STATE
+   ========================================================= */
+
+.recovery-loading {
+    min-height: 70vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background: #f6f8fc;
+
+    color: #6b7280;
 }
 
 .recovery-loading .spinner-border {
-  margin-bottom: 15px;
+    width: 38px;
+    height: 38px;
+
+    margin-bottom: 15px;
+
+    color: #0d6efd;
+}
+
+.recovery-loading p {
+    margin: 0;
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   ERROR STATE
+   ========================================================= */
+
+.recovery-error {
+    min-height: 70vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px;
+
+    background: #f6f8fc;
+
+    text-align: center;
 }
 
 .recovery-error i {
-  font-size: 40px;
-  color: #dc2626;
-  margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 60px;
+    height: 60px;
+
+    margin-bottom: 15px;
+
+    border-radius: 15px;
+
+    background: #fff0f0;
+    color: #dc3545;
+
+    font-size: 28px;
 }
 
 .recovery-error h3 {
-  color: #374151;
+    margin: 0;
+
+    color: #374151;
+
+    font-size: 18px;
+    font-weight: 650;
 }
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 992px) {
+
+    .recovery-page {
+        padding: 24px;
+    }
+
+    .recovery-header h1 {
+        font-size: 27px;
+    }
+
+    .recovery-table th,
+    .recovery-table td {
+        padding: 15px 16px;
+    }
+
+    .recovery-table th:first-child,
+    .recovery-table td:first-child {
+        padding-left: 18px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 768px) {
-  .recovery-page {
-    padding: 20px;
-  }
 
-  .recovery-header {
-    align-items: flex-start;
-    gap: 15px;
-  }
+    .recovery-page {
+        padding: 18px;
+    }
 
-  .recovery-header h1 {
-    font-size: 24px;
-  }
+    .recovery-header {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 22px;
+    }
+
+    .recovery-header h1 {
+        font-size: 24px;
+    }
+
+    .recovery-header p {
+        font-size: 13px;
+    }
+
+    .case-count {
+        margin-left: auto;
+    }
+
+    .recovery-table-card {
+        border-radius: 14px !important;
+    }
+
+    .recovery-table {
+        min-width: 720px;
+    }
+
+    .recovery-table th {
+        font-size: 10px;
+    }
+
+    .recovery-table td {
+        padding: 14px 15px;
+        font-size: 13px;
+    }
+
+    .recovery-table th:first-child,
+    .recovery-table td:first-child {
+        padding-left: 16px;
+    }
 }
 
-.recovery-case-row {
-  cursor: pointer;
-}
 
-.recovery-case-row:hover {
-  background: #f1f5f9 !important;
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 576px) {
+
+    .recovery-page {
+        padding: 14px;
+    }
+
+    .recovery-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .case-count {
+        align-self: flex-start;
+        margin-left: 0;
+    }
+
+    .empty-recovery {
+        min-height: 320px;
+        padding: 40px 18px;
+    }
+
+    .empty-recovery i {
+        width: 58px;
+        height: 58px;
+        font-size: 27px;
+    }
+
+    .empty-recovery h3 {
+        font-size: 18px;
+    }
 }

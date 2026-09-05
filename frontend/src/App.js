@@ -8,6 +8,7 @@ import RecoveryCases from "./components/RecoveryCases";
 import AIInsights from "./components/AIInsights";
 import AuditLogs from "./components/AuditLogs";
 import CreatePayment from "./pages/CreatePayment";
+import Settings from "./components/Settings";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -40,7 +41,9 @@ function App() {
 
       <main className="main-content">
 
-        {currentPage === "dashboard" && <Dashboard />}
+        {currentPage === "dashboard" && (
+          <Dashboard onLogout={handleLogout} />
+        )}
 
         {currentPage === "recovery" && <RecoveryCases />}
 
@@ -50,13 +53,15 @@ function App() {
 
         {currentPage === "create-payment" && <CreatePayment />}
 
-        <button
+        {currentPage === "settings" && <Settings />}
+
+        {/* <button
           onClick={handleLogout}
           className="btn btn-danger logout-button"
         >
           <i className="bi bi-box-arrow-right"></i>{" "}
           Logout
-        </button>
+        </button> */}
 
       </main>
 
