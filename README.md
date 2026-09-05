@@ -65,7 +65,7 @@ RecoverAI follows a modular full-stack architecture:
 ```text
                     ┌──────────────────────┐
                     │   React Frontend     │
-                    │   Dashboard & UI      │
+                    │   Dashboard & UI     │
                     └──────────┬───────────┘
                                │
                                │ REST API
